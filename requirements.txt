@@ -1,0 +1,11 @@
+# Core dependencies
+pydantic>=2.0.0
+typing-extensions>=4.5.0
+
+# Optional: for future API integration
+# fastapi>=0.104.0
+# uvicorn>=0.24.0
+
+# Development
+pytest>=7.4.0
+pytest-cov>=4.1.0
