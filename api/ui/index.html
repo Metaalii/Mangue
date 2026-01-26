@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mangue - Ingredient Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #6366f1;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: var(--background);
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--background);
+            min-height: 45px;
+        }
+
+        .tag-input-container:focus-within {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.2rem;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .tag button:hover {
+            opacity: 1;
+        }
+
+        .tag-input {
+            flex: 1;
+            min-width: 150px;
+            border: none;
+            background: transparent;
+            padding: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .tag-input:focus {
+            outline: none;
+        }
+
+        .risk-selector {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .risk-option {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--background);
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .risk-option:hover {
+            border-color: var(--primary);
+        }
+
+        .risk-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .verdict-card {
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .verdict-card.GOOD_FIT {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .verdict-card.MIXED_FIT {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .verdict-card.NOT_RECOMMENDED {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .verdict-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .verdict-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .reason-list {
+            list-style: none;
+        }
+
+        .reason-item {
+            padding: 1rem;
+            background: var(--background);
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+        }
+
+        .reason-item strong {
+            color: var(--primary);
+        }
+
+        .ingredient-summary {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-summary p {
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .final-note {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--secondary);
+            font-style: italic;
+            color: var(--text-light);
+            margin-top: 1.5rem;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .risk-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10b981"/>
+                </svg>
+            </div>
+            <h1>Mangue</h1>
+            <p class="subtitle">Personalized Ingredient Analysis</p>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span>📝</span>
+                Ingredient Information
+            </h2>
+            <div class="form-group">
+                <label for="ingredients">Paste ingredient list:</label>
+                <textarea
+                    id="ingredients"
+                    placeholder="Example: Sugar, wheat flour, vegetable oil, E471, E202, vanilla extract, salt"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span>🎯</span>
+                Your Profile
+            </h2>
+
+            <div class="form-group">
+                <label for="goals">Health Goals:</label>
+                <div class="tag-input-container" id="goalsContainer">
+                    <input type="text" class="tag-input" id="goalsInput" placeholder="Type and press Enter (e.g., 'lose weight', 'eat healthier')">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="constraints">Dietary Constraints:</label>
+                <div class="tag-input-container" id="constraintsContainer">
+                    <input type="text" class="tag-input" id="constraintsInput" placeholder="Type and press Enter (e.g., 'peanut allergy', 'vegan')">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="preferences">Preferences:</label>
+                <div class="tag-input-container" id="preferencesContainer">
+                    <input type="text" class="tag-input" id="preferencesInput" placeholder="Type and press Enter (e.g., 'avoid additives', 'low sugar')">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Risk Sensitivity:</label>
+                <div class="risk-selector">
+                    <div class="risk-option" data-risk="low">Low</div>
+                    <div class="risk-option active" data-risk="medium">Medium</div>
+                    <div class="risk-option" data-risk="high">High</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" id="analyzeBtn">Analyze Ingredients</button>
+
+        <div class="error" id="errorMsg"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem; color: var(--text-light);">Analyzing ingredients...</p>
+        </div>
+
+        <div class="results" id="results">
+            <!-- Results will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Tag input functionality
+        function setupTagInput(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const tags = [];
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && input.value.trim()) {
+                    e.preventDefault();
+                    const value = input.value.trim();
+                    tags.push(value);
+                    addTag(value);
+                    input.value = '';
+                }
+            });
+
+            function addTag(text) {
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerHTML = `
+                    ${text}
+                    <button onclick="this.parentElement.remove()">×</button>
+                `;
+                container.insertBefore(tag, input);
+            }
+
+            return {
+                getTags: () => Array.from(container.querySelectorAll('.tag'))
+                    .map(tag => tag.textContent.trim().replace('×', ''))
+            };
+        }
+
+        const goalsManager = setupTagInput('goalsContainer', 'goalsInput');
+        const constraintsManager = setupTagInput('constraintsContainer', 'constraintsInput');
+        const preferencesManager = setupTagInput('preferencesContainer', 'preferencesInput');
+
+        // Risk sensitivity selector
+        document.querySelectorAll('.risk-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.risk-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+
+        // Analyze button
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const ingredients = document.getElementById('ingredients').value.trim();
+            const goals = goalsManager.getTags();
+            const constraints = constraintsManager.getTags();
+            const preferences = preferencesManager.getTags();
+            const riskSensitivity = document.querySelector('.risk-option.active').dataset.risk;
+
+            // Validation
+            if (!ingredients) {
+                showError('Please enter an ingredient list');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('errorMsg').classList.remove('active');
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/analyze-simple', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ingredients_text: ingredients,
+                        goals: goals.length > 0 ? goals : null,
+                        constraints: constraints.length > 0 ? constraints : null,
+                        preferences: preferences.length > 0 ? preferences : null,
+                        risk_sensitivity: riskSensitivity,
+                        locale: 'EU'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                showError('Failed to analyze ingredients. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        });
+
+        function displayResults(result) {
+            const resultsDiv = document.getElementById('results');
+            const verdict = result.evaluation.verdict;
+            const output = result.user_output;
+
+            const verdictEmojis = {
+                'GOOD_FIT': '✅',
+                'MIXED_FIT': '⚠️',
+                'NOT_RECOMMENDED': '❌'
+            };
+
+            resultsDiv.innerHTML = `
+                <div class="card">
+                    <div class="verdict-card ${verdict}">
+                        <div class="verdict-icon">${verdictEmojis[verdict]}</div>
+                        <div class="verdict-title">${output.USER_FIT_VERDICT}</div>
+                    </div>
+
+                    <div class="ingredient-summary">
+                        ${output.INGREDIENT_SUMMARY.map(s => `<p>${s}</p>`).join('')}
+                    </div>
+
+                    <h2 style="margin-bottom: 1rem;">Why This Matters For You</h2>
+                    <ul class="reason-list">
+                        ${output.WHY_THIS_MATTERS_FOR_YOU.map(reason => {
+                            const parts = reason.split(':');
+                            if (parts.length > 1) {
+                                return `<li class="reason-item"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
+                            }
+                            return `<li class="reason-item">${reason}</li>`;
+                        }).join('')}
+                    </ul>
+
+                    <div class="final-note">
+                        ${output.FINAL_NOTE}
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.classList.add('active');
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+            setTimeout(() => {
+                errorDiv.classList.remove('active');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -32,6 +32,31 @@ pip install -r requirements.txt
 
 ## Quick Start
 
+### Option 1: Web Interface (Recommended)
+
+The easiest way to use Mangue is through the beautiful web interface:
+
+```bash
+# Start the web application
+python run_app.py
+```
+
+Then open your browser to: **http://localhost:8000**
+
+The web interface provides:
+- 🎨 Beautiful, intuitive UI
+- 📝 Easy ingredient input
+- 🎯 Interactive profile builder with tag inputs
+- 🎚️ Risk sensitivity selector
+- 📊 Clear, visual results with color-coded verdicts
+- 📱 Fully responsive (works on mobile)
+
+**API Documentation**: http://localhost:8000/docs
+
+### Option 2: Python API
+
+Use Mangue programmatically in your Python code:
+
 ```python
 from src.agents import IngredientAnalysisAgent
 from src.models import RiskSensitivity
@@ -228,6 +253,85 @@ Recognizes major allergens per FDA and EU regulations:
 - Lupin
 - Molluscs
 - Sulphites
+
+## REST API
+
+Mangue provides a RESTful API for integration with other applications.
+
+### Start the API Server
+
+```bash
+python run_app.py
+```
+
+### API Endpoints
+
+#### POST `/api/analyze-simple`
+
+Simplified analysis endpoint.
+
+**Request:**
+```json
+{
+  "ingredients_text": "sugar, flour, E471",
+  "goals": ["eat healthier"],
+  "constraints": ["vegan"],
+  "preferences": ["avoid additives"],
+  "risk_sensitivity": "medium",
+  "locale": "EU"
+}
+```
+
+**Response:**
+```json
+{
+  "parsed_ingredients": {...},
+  "ingredient_facts": [...],
+  "user_policy": {...},
+  "evaluation": {...},
+  "user_output": {...}
+}
+```
+
+#### POST `/api/analyze`
+
+Full analysis with structured `AnalysisInput`.
+
+#### GET `/api/health`
+
+Health check endpoint.
+
+### Example API Usage
+
+```bash
+# Using curl
+curl -X POST "http://localhost:8000/api/analyze-simple" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients_text": "sugar, wheat flour, E471, E202",
+    "constraints": ["vegan"],
+    "preferences": ["avoid additives"],
+    "risk_sensitivity": "medium"
+  }'
+```
+
+```python
+# Using Python requests
+import requests
+
+response = requests.post(
+    "http://localhost:8000/api/analyze-simple",
+    json={
+        "ingredients_text": "sugar, wheat flour, E471, E202",
+        "constraints": ["vegan"],
+        "preferences": ["avoid additives"],
+        "risk_sensitivity": "medium"
+    }
+)
+
+result = response.json()
+print(result["user_output"]["USER_FIT_VERDICT"])
+```
 
 ## Running Examples
 
