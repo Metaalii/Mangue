@@ -81,13 +81,36 @@ def check_hard_constraints(fact: IngredientFact, hard_constraints: List[str]) ->
     """Check if ingredient violates hard constraints"""
     reasons = []
 
+    # Map allergen categories to common constraint keywords users might type
+    ALLERGEN_CONSTRAINT_MAP = {
+        "milk": ["milk", "dairy", "lactose"],
+        "eggs": ["egg", "eggs"],
+        "fish": ["fish"],
+        "shellfish": ["shellfish", "crustacean", "shrimp", "crab", "lobster"],
+        "tree_nuts": ["nut", "nuts", "tree nut", "almond", "walnut", "cashew", "pecan", "pistachio", "hazelnut"],
+        "peanuts": ["peanut", "groundnut"],
+        "wheat": ["wheat", "gluten", "celiac", "coeliac"],
+        "soybeans": ["soy", "soya", "soybean"],
+        "sesame": ["sesame"],
+        "celery": ["celery"],
+        "mustard": ["mustard"],
+        "lupin": ["lupin", "lupine"],
+        "molluscs": ["mollusc", "mollusk", "shellfish", "squid", "octopus", "clam", "mussel", "oyster"],
+        "sulphites": ["sulphite", "sulfite", "sulphur", "sulfur"],
+    }
+
     for constraint in hard_constraints:
         constraint_lower = constraint.lower()
 
-        # Check for allergens
+        # Check for allergens - improved matching logic
         allergens = check_allergen(fact.canonical)
         for allergen in allergens:
-            if allergen in constraint_lower or any(keyword in constraint_lower for keyword in ["allergy", "allergic"]):
+            # Check if constraint mentions this allergen category or related keywords
+            is_allergy_constraint = any(kw in constraint_lower for kw in ["allergy", "allergic", "intolerant", "intolerance"])
+            allergen_keywords = ALLERGEN_CONSTRAINT_MAP.get(allergen, [allergen])
+            constraint_mentions_allergen = any(kw in constraint_lower for kw in allergen_keywords)
+
+            if constraint_mentions_allergen or (is_allergy_constraint and allergen in constraint_lower):
                 reasons.append(
                     KeyReason(
                         ingredient=fact.canonical,
@@ -95,11 +118,18 @@ def check_hard_constraints(fact: IngredientFact, hard_constraints: List[str]) ->
                         explanation=f"Contains {allergen}, which conflicts with your constraint: {constraint}",
                     )
                 )
-                continue
+                break  # Don't add duplicate reasons for same constraint
 
-        # Check for dietary restrictions
+        # Check for dietary restrictions - expanded vegan keywords
         if "vegan" in constraint_lower:
-            if any(keyword in fact.canonical.lower() for keyword in ["milk", "egg", "honey", "gelatin", "whey", "casein"]):
+            non_vegan_keywords = [
+                "milk", "egg", "honey", "gelatin", "whey", "casein", "lactose",
+                "butter", "cream", "cheese", "yogurt", "ghee", "albumin", "ovalbumin",
+                "shellac", "carmine", "cochineal", "isinglass", "lard", "tallow",
+                "beeswax", "royal jelly", "propolis", "lanolin", "keratin",
+                "collagen", "bone", "rennet", "pepsin", "anchovies"
+            ]
+            if any(keyword in fact.canonical.lower() for keyword in non_vegan_keywords):
                 reasons.append(
                     KeyReason(
                         ingredient=fact.canonical,
@@ -109,7 +139,12 @@ def check_hard_constraints(fact: IngredientFact, hard_constraints: List[str]) ->
                 )
 
         if "vegetarian" in constraint_lower:
-            if any(keyword in fact.canonical.lower() for keyword in ["gelatin", "cochineal", "carmine"]):
+            non_vegetarian_keywords = [
+                "gelatin", "cochineal", "carmine", "isinglass", "lard", "tallow",
+                "rennet", "pepsin", "bone", "meat", "beef", "pork", "chicken",
+                "fish", "anchovy", "anchovies"
+            ]
+            if any(keyword in fact.canonical.lower() for keyword in non_vegetarian_keywords):
                 reasons.append(
                     KeyReason(
                         ingredient=fact.canonical,

@@ -99,16 +99,16 @@ def generate_why_matters(key_reasons: List) -> List[str]:
         explanation = reason.explanation
 
         # Remove alarmist language if any slipped through
-        explanation = explanation.replace("dangerous", "may not be suitable")
-        explanation = explanation.replace("toxic", "not recommended")
+        alarmist_replacements = {
+            "dangerous": "may not be suitable",
+            "toxic": "not recommended",
+            "harmful": "may not align with your preferences",
+            "bad for you": "may not be ideal for your goals",
+        }
+        for alarmist, calm in alarmist_replacements.items():
+            explanation = explanation.replace(alarmist, calm)
 
-        # Add context about choice
-        if "conflicts with your constraint" in explanation.lower():
-            matters.append(f"{reason.ingredient}: {explanation}")
-        elif "may support" in explanation.lower() or "aligning with" in explanation.lower():
-            matters.append(f"{reason.ingredient}: {explanation}")
-        else:
-            matters.append(f"{reason.ingredient}: {explanation}")
+        matters.append(f"{reason.ingredient}: {explanation}")
 
     return matters
 

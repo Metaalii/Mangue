@@ -1,8 +1,16 @@
 """STEP 2 — INGREDIENT FACTS (OBJECTIVE)"""
 
-from typing import List
+from typing import List, NamedTuple
 from ..models.schemas import IngredientFact, AdditiveCategory, ParsedIngredients, RegulatoryStatus
 from ..data.additives import get_additive_info, is_e_number
+
+
+class InferredIngredientInfo(NamedTuple):
+    """Type-safe return type for infer_ingredient_type"""
+    is_additive: bool
+    category: AdditiveCategory
+    notes: List[str]
+    uncertainty_notes: List[str]
 
 
 def extract_ingredient_facts(parsed: ParsedIngredients, locale: str = "other") -> List[IngredientFact]:
@@ -69,7 +77,7 @@ def analyze_ingredient(canonical: str, locale: str = "other") -> IngredientFact:
     )
 
 
-def infer_ingredient_type(canonical: str) -> tuple:
+def infer_ingredient_type(canonical: str) -> InferredIngredientInfo:
     """
     Infer ingredient type based on name patterns when not in database.
 
@@ -77,18 +85,23 @@ def infer_ingredient_type(canonical: str) -> tuple:
         canonical: Canonical ingredient name
 
     Returns:
-        Tuple of (is_additive, category, notes, uncertainty_notes)
+        InferredIngredientInfo with is_additive, category, notes, uncertainty_notes
     """
     canonical_lower = canonical.lower()
-    notes = []
-    uncertainty_notes = []
+    notes: List[str] = []
+    uncertainty_notes: List[str] = []
 
     # Check for E-number pattern
     if is_e_number(canonical):
         uncertainty_notes.append(f"E-number {canonical} not found in database; classification uncertain")
-        return True, AdditiveCategory.OTHER, notes, uncertainty_notes
+        return InferredIngredientInfo(
+            is_additive=True,
+            category=AdditiveCategory.OTHER,
+            notes=notes,
+            uncertainty_notes=uncertainty_notes
+        )
 
-    # Check for common ingredient patterns
+    # Check for common ingredient patterns - use word boundary matching to avoid false positives
     natural_ingredients = [
         "flour", "wheat", "rice", "corn", "oat", "barley",
         "milk", "cream", "butter", "cheese",
@@ -100,9 +113,15 @@ def infer_ingredient_type(canonical: str) -> tuple:
     ]
 
     for natural in natural_ingredients:
-        if natural in canonical_lower:
+        # Use word boundary check to avoid matching "discolor" for "color"
+        if _word_in_text(natural, canonical_lower):
             notes.append("Natural ingredient")
-            return False, AdditiveCategory.NONE, notes, uncertainty_notes
+            return InferredIngredientInfo(
+                is_additive=False,
+                category=AdditiveCategory.NONE,
+                notes=notes,
+                uncertainty_notes=uncertainty_notes
+            )
 
     # Check for additive-like keywords
     additive_keywords = {
@@ -113,16 +132,38 @@ def infer_ingredient_type(canonical: str) -> tuple:
         "emulsifier": AdditiveCategory.EMULSIFIER,
         "thickener": AdditiveCategory.EMULSIFIER,
         "stabilizer": AdditiveCategory.EMULSIFIER,
+        "stabiliser": AdditiveCategory.EMULSIFIER,
         "sweetener": AdditiveCategory.SWEETENER,
         "flavor": AdditiveCategory.FLAVORING,
         "flavour": AdditiveCategory.FLAVORING,
     }
 
     for keyword, category in additive_keywords.items():
-        if keyword in canonical_lower:
+        if _word_in_text(keyword, canonical_lower):
             uncertainty_notes.append(f"Classified as {category.value} based on name pattern")
-            return True, category, notes, uncertainty_notes
+            return InferredIngredientInfo(
+                is_additive=True,
+                category=category,
+                notes=notes,
+                uncertainty_notes=uncertainty_notes
+            )
 
     # Default: probably a natural ingredient but uncertain
     uncertainty_notes.append("Ingredient not found in database; assuming natural ingredient")
-    return False, AdditiveCategory.NONE, notes, uncertainty_notes
+    return InferredIngredientInfo(
+        is_additive=False,
+        category=AdditiveCategory.NONE,
+        notes=notes,
+        uncertainty_notes=uncertainty_notes
+    )
+
+
+def _word_in_text(word: str, text: str) -> bool:
+    """Check if word exists in text with word boundaries (not as substring of another word)
+
+    Allows common word suffixes like 's', 'ing', 'ed', 'er', 'ant', 'ent'.
+    """
+    import re
+    # Match word at word boundary, allowing common suffixes
+    pattern = r'\b' + re.escape(word) + r'(?:s|es|ed|ing|er|ant|ent|ive)?\b'
+    return bool(re.search(pattern, text))

@@ -580,6 +580,13 @@
             }
         });
 
+        // Sanitize text to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function displayResults(result) {
             const resultsDiv = document.getElementById('results');
             const verdict = result.evaluation.verdict;
@@ -591,30 +598,36 @@
                 'NOT_RECOMMENDED': '❌'
             };
 
+            // Safely escape all user-generated content
+            const safeVerdict = escapeHtml(output.USER_FIT_VERDICT);
+            const safeFinalNote = escapeHtml(output.FINAL_NOTE);
+            const safeSummary = output.INGREDIENT_SUMMARY.map(s => `<p>${escapeHtml(s)}</p>`).join('');
+            const safeReasons = output.WHY_THIS_MATTERS_FOR_YOU.map(reason => {
+                const parts = reason.split(':');
+                if (parts.length > 1) {
+                    return `<li class="reason-item"><strong>${escapeHtml(parts[0])}:</strong>${escapeHtml(parts.slice(1).join(':'))}</li>`;
+                }
+                return `<li class="reason-item">${escapeHtml(reason)}</li>`;
+            }).join('');
+
             resultsDiv.innerHTML = `
                 <div class="card">
-                    <div class="verdict-card ${verdict}">
-                        <div class="verdict-icon">${verdictEmojis[verdict]}</div>
-                        <div class="verdict-title">${output.USER_FIT_VERDICT}</div>
+                    <div class="verdict-card ${escapeHtml(verdict)}">
+                        <div class="verdict-icon">${verdictEmojis[verdict] || '❓'}</div>
+                        <div class="verdict-title">${safeVerdict}</div>
                     </div>
 
                     <div class="ingredient-summary">
-                        ${output.INGREDIENT_SUMMARY.map(s => `<p>${s}</p>`).join('')}
+                        ${safeSummary}
                     </div>
 
                     <h2 style="margin-bottom: 1rem;">Why This Matters For You</h2>
                     <ul class="reason-list">
-                        ${output.WHY_THIS_MATTERS_FOR_YOU.map(reason => {
-                            const parts = reason.split(':');
-                            if (parts.length > 1) {
-                                return `<li class="reason-item"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
-                            }
-                            return `<li class="reason-item">${reason}</li>`;
-                        }).join('')}
+                        ${safeReasons}
                     </ul>
 
                     <div class="final-note">
-                        ${output.FINAL_NOTE}
+                        ${safeFinalNote}
                     </div>
                 </div>
             `;

@@ -143,8 +143,12 @@ def calculate_confidence(original: str, canonical: str) -> float:
         canonical: Normalized/canonical form
 
     Returns:
-        Confidence score between 0.0 and 1.0
+        Confidence score between 0.0 and 1.0 (clamped)
     """
+    # Handle empty strings
+    if not original or not canonical:
+        return 0.0
+
     # Exact match = 1.0
     if original.lower() == canonical.lower():
         return 1.0
@@ -166,11 +170,12 @@ def calculate_confidence(original: str, canonical: str) -> float:
 
     similarity = common_chars / max_len
 
-    # Boost confidence if both start with the same letter
-    if original_lower[0] == canonical_lower[0]:
-        similarity = min(1.0, similarity + 0.1)
+    # Boost confidence if both start with the same letter (clamp to 1.0)
+    if original_lower and canonical_lower and original_lower[0] == canonical_lower[0]:
+        similarity += 0.1
 
-    return round(similarity, 2)
+    # Always clamp to [0.0, 1.0]
+    return round(min(1.0, max(0.0, similarity)), 2)
 
 
 def tokenize_ingredient(ingredient: str) -> List[str]:
