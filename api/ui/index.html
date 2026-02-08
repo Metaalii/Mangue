@@ -360,6 +360,236 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
+        /* Onboarding Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: var(--primary);
+        }
+
+        .onboarding-step {
+            display: none;
+        }
+
+        .onboarding-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .quick-option {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            background: var(--background);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-option:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .quick-option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .quick-option .icon {
+            font-size: 1.1rem;
+        }
+
+        .btn-secondary {
+            background: var(--background);
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-summary {
+            background: var(--background);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .profile-summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .profile-summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-summary-item .label {
+            font-weight: 600;
+            color: var(--text);
+            min-width: 100px;
+        }
+
+        .profile-summary-item .value {
+            color: var(--text-light);
+        }
+
+        .edit-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+            border: none;
+            background: none;
+        }
+
+        .edit-profile-btn:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -408,6 +638,175 @@
     </style>
 </head>
 <body>
+    <!-- Onboarding Modal -->
+    <div class="modal-overlay" id="onboardingModal">
+        <div class="modal">
+            <!-- Step 1: Welcome -->
+            <div class="onboarding-step active" id="step1">
+                <div class="modal-header">
+                    <div class="welcome-icon">🥭</div>
+                    <h2>Welcome to Mangue!</h2>
+                    <p>Let's personalize your ingredient analysis in just a few steps.</p>
+                </div>
+                <div class="modal-body">
+                    <div class="step-indicator">
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <p style="text-align: center; color: var(--text-light); margin-top: 1rem;">
+                        We'll ask about your dietary needs so we can give you personalized recommendations.
+                    </p>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button class="btn-primary" onclick="nextStep(2)">Get Started</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Dietary Restrictions -->
+            <div class="onboarding-step" id="step2">
+                <div class="modal-header">
+                    <h2>Any dietary restrictions?</h2>
+                    <p>Select all that apply (these are hard constraints)</p>
+                </div>
+                <div class="modal-body">
+                    <div class="step-indicator">
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div class="quick-options" id="restrictionOptions">
+                        <div class="quick-option" data-value="vegan">
+                            <span class="icon">🌱</span> Vegan
+                        </div>
+                        <div class="quick-option" data-value="vegetarian">
+                            <span class="icon">🥬</span> Vegetarian
+                        </div>
+                        <div class="quick-option" data-value="gluten-free">
+                            <span class="icon">🌾</span> Gluten-Free
+                        </div>
+                        <div class="quick-option" data-value="dairy-free">
+                            <span class="icon">🥛</span> Dairy-Free
+                        </div>
+                        <div class="quick-option" data-value="peanut allergy">
+                            <span class="icon">🥜</span> Peanut Allergy
+                        </div>
+                        <div class="quick-option" data-value="tree nut allergy">
+                            <span class="icon">🌰</span> Tree Nut Allergy
+                        </div>
+                        <div class="quick-option" data-value="shellfish allergy">
+                            <span class="icon">🦐</span> Shellfish Allergy
+                        </div>
+                        <div class="quick-option" data-value="egg allergy">
+                            <span class="icon">🥚</span> Egg Allergy
+                        </div>
+                        <div class="quick-option" data-value="soy allergy">
+                            <span class="icon">🫘</span> Soy Allergy
+                        </div>
+                        <div class="quick-option" data-value="halal">
+                            <span class="icon">☪️</span> Halal
+                        </div>
+                        <div class="quick-option" data-value="kosher">
+                            <span class="icon">✡️</span> Kosher
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="nextStep(1)">Back</button>
+                    <button class="btn-primary" onclick="nextStep(3)">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Health Goals -->
+            <div class="onboarding-step" id="step3">
+                <div class="modal-header">
+                    <h2>What are your health goals?</h2>
+                    <p>Select any that apply</p>
+                </div>
+                <div class="modal-body">
+                    <div class="step-indicator">
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div class="quick-options" id="goalOptions">
+                        <div class="quick-option" data-value="eat healthier">
+                            <span class="icon">🥗</span> Eat Healthier
+                        </div>
+                        <div class="quick-option" data-value="lose weight">
+                            <span class="icon">⚖️</span> Lose Weight
+                        </div>
+                        <div class="quick-option" data-value="reduce sugar">
+                            <span class="icon">🍬</span> Reduce Sugar
+                        </div>
+                        <div class="quick-option" data-value="reduce sodium">
+                            <span class="icon">🧂</span> Reduce Sodium
+                        </div>
+                        <div class="quick-option" data-value="build muscle">
+                            <span class="icon">💪</span> Build Muscle
+                        </div>
+                        <div class="quick-option" data-value="more energy">
+                            <span class="icon">⚡</span> More Energy
+                        </div>
+                        <div class="quick-option" data-value="improve digestion">
+                            <span class="icon">🫃</span> Better Digestion
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="nextStep(2)">Back</button>
+                    <button class="btn-primary" onclick="nextStep(4)">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Preferences -->
+            <div class="onboarding-step" id="step4">
+                <div class="modal-header">
+                    <h2>Any preferences?</h2>
+                    <p>These are soft preferences (we'll flag but not reject)</p>
+                </div>
+                <div class="modal-body">
+                    <div class="step-indicator">
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot completed"></div>
+                        <div class="step-dot active"></div>
+                    </div>
+                    <div class="quick-options" id="preferenceOptions">
+                        <div class="quick-option" data-value="avoid additives">
+                            <span class="icon">🧪</span> Avoid Additives
+                        </div>
+                        <div class="quick-option" data-value="natural ingredients">
+                            <span class="icon">🌿</span> Natural Ingredients
+                        </div>
+                        <div class="quick-option" data-value="organic">
+                            <span class="icon">🌱</span> Prefer Organic
+                        </div>
+                        <div class="quick-option" data-value="no artificial colors">
+                            <span class="icon">🎨</span> No Artificial Colors
+                        </div>
+                        <div class="quick-option" data-value="no artificial sweeteners">
+                            <span class="icon">🍭</span> No Artificial Sweeteners
+                        </div>
+                        <div class="quick-option" data-value="minimize preservatives">
+                            <span class="icon">🧊</span> Minimize Preservatives
+                        </div>
+                        <div class="quick-option" data-value="non-gmo">
+                            <span class="icon">🧬</span> Non-GMO
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="nextStep(3)">Back</button>
+                    <button class="btn-primary" onclick="finishOnboarding()">Finish Setup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="logo">
@@ -434,9 +833,14 @@
         </div>
 
         <div class="card">
-            <h2>
-                <span>🎯</span>
-                Your Profile
+            <h2 style="justify-content: space-between;">
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>🎯</span>
+                    Your Profile
+                </span>
+                <button class="edit-profile-btn" onclick="resetProfile()">
+                    <span>✏️</span> Reset Profile
+                </button>
             </h2>
 
             <div class="form-group">
@@ -485,27 +889,113 @@
     </div>
 
     <script>
-        // Tag input functionality
+        // ============ ONBOARDING ============
+        const STORAGE_KEY = 'mangue_user_profile';
+        let onboardingData = {
+            restrictions: [],
+            goals: [],
+            preferences: []
+        };
+
+        // Check if first-time user
+        function checkFirstTimeUser() {
+            const savedProfile = localStorage.getItem(STORAGE_KEY);
+            if (!savedProfile) {
+                showOnboardingModal();
+            } else {
+                loadSavedProfile(JSON.parse(savedProfile));
+            }
+        }
+
+        function showOnboardingModal() {
+            document.getElementById('onboardingModal').classList.add('active');
+        }
+
+        function hideOnboardingModal() {
+            document.getElementById('onboardingModal').classList.remove('active');
+        }
+
+        function nextStep(stepNum) {
+            // Hide all steps
+            document.querySelectorAll('.onboarding-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            // Show target step
+            document.getElementById('step' + stepNum).classList.add('active');
+        }
+
+        // Setup quick option selection
+        document.querySelectorAll('.quick-options').forEach(container => {
+            container.addEventListener('click', (e) => {
+                const option = e.target.closest('.quick-option');
+                if (option) {
+                    option.classList.toggle('selected');
+                }
+            });
+        });
+
+        function getSelectedOptions(containerId) {
+            return Array.from(document.querySelectorAll(`#${containerId} .quick-option.selected`))
+                .map(opt => opt.dataset.value);
+        }
+
+        function finishOnboarding() {
+            // Gather all selections
+            onboardingData.restrictions = getSelectedOptions('restrictionOptions');
+            onboardingData.goals = getSelectedOptions('goalOptions');
+            onboardingData.preferences = getSelectedOptions('preferenceOptions');
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(onboardingData));
+
+            // Apply to the main form
+            loadSavedProfile(onboardingData);
+
+            // Close modal
+            hideOnboardingModal();
+        }
+
+        function loadSavedProfile(profile) {
+            // Add constraints
+            profile.restrictions?.forEach(r => constraintsManager.addTag(r));
+            // Add goals
+            profile.goals?.forEach(g => goalsManager.addTag(g));
+            // Add preferences
+            profile.preferences?.forEach(p => preferencesManager.addTag(p));
+        }
+
+        function resetProfile() {
+            localStorage.removeItem(STORAGE_KEY);
+            // Clear existing tags
+            document.querySelectorAll('.tag').forEach(t => t.remove());
+            // Show onboarding
+            showOnboardingModal();
+            // Reset onboarding selections
+            document.querySelectorAll('.quick-option.selected').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            nextStep(1);
+        }
+
+        // ============ TAG INPUT ============
         function setupTagInput(containerId, inputId) {
             const container = document.getElementById(containerId);
             const input = document.getElementById(inputId);
-            const tags = [];
 
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && input.value.trim()) {
                     e.preventDefault();
                     const value = input.value.trim();
-                    tags.push(value);
-                    addTag(value);
+                    addTagToContainer(container, input, value);
                     input.value = '';
                 }
             });
 
-            function addTag(text) {
+            function addTagToContainer(container, input, text) {
                 const tag = document.createElement('span');
                 tag.className = 'tag';
                 tag.innerHTML = `
-                    ${text}
+                    ${escapeHtml(text)}
                     <button onclick="this.parentElement.remove()">×</button>
                 `;
                 container.insertBefore(tag, input);
@@ -513,13 +1003,17 @@
 
             return {
                 getTags: () => Array.from(container.querySelectorAll('.tag'))
-                    .map(tag => tag.textContent.trim().replace('×', ''))
+                    .map(tag => tag.textContent.trim().replace('×', '')),
+                addTag: (text) => addTagToContainer(container, input, text)
             };
         }
 
         const goalsManager = setupTagInput('goalsContainer', 'goalsInput');
         const constraintsManager = setupTagInput('constraintsContainer', 'constraintsInput');
         const preferencesManager = setupTagInput('preferencesContainer', 'preferencesInput');
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', checkFirstTimeUser);
 
         // Risk sensitivity selector
         document.querySelectorAll('.risk-option').forEach(option => {
